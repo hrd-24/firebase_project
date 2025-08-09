@@ -1,5 +1,7 @@
+import 'package:adhan/adhan.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:intl/intl.dart';
 import 'package:starting_slicing/app/constants/app_spacing.dart';
 import 'package:starting_slicing/app/constants/app_style.dart';
 import 'package:starting_slicing/app/feature/model/donasi_model.dart';
@@ -11,7 +13,20 @@ import 'package:starting_slicing/app/widgets/prayer_card.dart';
 
 class HomePage extends StatelessWidget {
   final Function(DonasiModel) onAddDonasi;
-  const HomePage({super.key, required this.onAddDonasi});
+
+  // Define coordinates for your location (latitude, longitude)
+  static final Coordinates coordinates = Coordinates(
+    -6.200000,
+    106.816666,
+  ); // Example: Jakarta
+  static final CalculationParameters params = CalculationMethod
+      .muslim_world_league
+      .getParameters();
+
+  final prayerTimes = PrayerTimes.today(coordinates, params);
+  final formatter = DateFormat('HH:mm');
+  HomePage({super.key, required this.onAddDonasi});
+
   @override
   Widget build(BuildContext context) {
     // final String uid = FirebaseAuth.instance.currentUser!.uid;
@@ -49,9 +64,9 @@ class HomePage extends StatelessWidget {
               ),
               ImageCarousel(
                 images: [
-                  'https://i.pravatar.cc/300?img=1',
-                  'https://i.pravatar.cc/300?img=2',
-                  'https://i.pravatar.cc/300?img=3',
+                  'assets/images/image1.jpg',
+                  'assets/images/icon.jpg',
+                  'assets/images/images2.jpg',
                 ],
                 height: 150,
                 autoPlay: true,
@@ -102,12 +117,32 @@ class HomePage extends StatelessWidget {
                 scrollDirection: Axis.horizontal,
                 padding: const EdgeInsets.symmetric(horizontal: 8.0),
                 child: Row(
-                  children: const [
-                    PrayerCard('Subuh', '04:30', Icons.alarm),
-                    PrayerCard('Dzuhur', '12:00', Icons.access_time),
-                    PrayerCard('Ashar', '15:30', Icons.access_time),
-                    PrayerCard('Maghrib', '18:00', Icons.access_time),
-                    PrayerCard('Isya', '19:30', Icons.access_time),
+                  children: [
+                    PrayerCard(
+                      'Subuh',
+                      formatter.format(prayerTimes.fajr),
+                      Icons.alarm,
+                    ),
+                    PrayerCard(
+                      'Dzuhur',
+                      formatter.format(prayerTimes.dhuhr),
+                      Icons.access_time,
+                    ),
+                    PrayerCard(
+                      'Ashar',
+                      formatter.format(prayerTimes.asr),
+                      Icons.access_time,
+                    ),
+                    PrayerCard(
+                      'Maghrib',
+                      formatter.format(prayerTimes.maghrib),
+                      Icons.access_time,
+                    ),
+                    PrayerCard(
+                      'Isya',
+                      formatter.format(prayerTimes.isha),
+                      Icons.access_time,
+                    ),
                   ],
                 ),
               ),
@@ -142,14 +177,14 @@ class HomePage extends StatelessWidget {
                 child: Row(
                   children: [
                     IconCard(
-                      'assets/images/icon.jpg',
+                      'assets/images/donasi.png',
                       onTap: () {
                         print('Buku 1 diklik!');
                         _showSedekahDialog(context);
                       },
                     ),
                     IconCard(
-                      'assets/images/icon.jpg',
+                      'assets/images/sedekah.jpg',
                       onTap: () {
                         print('Buku 2 diklik!');
                       },
@@ -171,72 +206,69 @@ class HomePage extends StatelessWidget {
   }
 
   void _showSedekahDialog(BuildContext context) {
-  final nameController = TextEditingController();
-  final amountController = TextEditingController();
+    final nameController = TextEditingController();
+    final amountController = TextEditingController();
 
-  showDialog(
-    context: context,
-    builder: (context) {
-      return AlertDialog(
-        title: const Text("Simulasi Sedekah"),
-        content: SingleChildScrollView(
-          child: Column(
-            children: [
-              TextField(
-                controller: nameController,
-                decoration: customInputDecoration('Nama Lengkap'),
-              ),
-              const SizedBox(height: 12),
-              TextField(
-                controller: amountController,
-                keyboardType: TextInputType.number,
-                decoration: customInputDecoration('Jumlah Sedekah'),
-                inputFormatters: [
-                  FilteringTextInputFormatter.digitsOnly,
-                ],
-              ),
-            ],
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text("Simulasi Sedekah"),
+          content: SingleChildScrollView(
+            child: Column(
+              children: [
+                TextField(
+                  controller: nameController,
+                  decoration: customInputDecoration('Nama Lengkap'),
+                ),
+                const SizedBox(height: 12),
+                TextField(
+                  controller: amountController,
+                  keyboardType: TextInputType.number,
+                  decoration: customInputDecoration('Jumlah Sedekah'),
+                  inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                ),
+              ],
+            ),
           ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Batal'),
-          ),
-          ElevatedButton(
-            onPressed: () async {
-              final name = nameController.text.trim();
-              final amount = amountController.text.trim();
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Batal'),
+            ),
+            ElevatedButton(
+              onPressed: () async {
+                final name = nameController.text.trim();
+                final amount = amountController.text.trim();
 
-              if (name.isEmpty || amount.isEmpty) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Harap isi semua data.')),
-                );
-                return;
-              }
+                if (name.isEmpty || amount.isEmpty) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Harap isi semua data.')),
+                  );
+                  return;
+                }
 
-              try {
-                // ✅ Gunakan FirestoreService yang sudah kita buat
-                await DonasiService().tambahDonasi(name, amount);
+                try {
+                  // ✅ Gunakan FirestoreService yang sudah kita buat
+                  await DonasiService().tambahDonasi(name, amount);
 
-                Navigator.pop(context); // Tutup dialog
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('Donasi berhasil dikirim (Pending).'),
-                  ),
-                );
-              } catch (e) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('Gagal mengirim donasi: $e')),
-                );
-              }
-            },
-            child: const Text('Kirim'),
-          ),
-        ],
-      );
-    },
-  );
-}
-
+                  Navigator.pop(context); // Tutup dialog
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Donasi berhasil dikirim (Pending).'),
+                    ),
+                  );
+                } catch (e) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('Gagal mengirim donasi: $e')),
+                  );
+                }
+              },
+              child: const Text('Kirim'),
+            ),
+          ],
+        );
+      },
+    );
+  }
 }

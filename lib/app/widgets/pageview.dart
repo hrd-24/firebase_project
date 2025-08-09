@@ -26,7 +26,7 @@ class _ImageCarouselState extends State<ImageCarousel> {
       children: [
         CarouselSlider(
           items: widget.images
-              .map((url) => Image.network(url, fit: BoxFit.cover, width: double.infinity))
+              .map((url) => Image.asset(url, fit: BoxFit.cover, width: double.infinity))
               .toList(),
           options: CarouselOptions(
             height: widget.height,
