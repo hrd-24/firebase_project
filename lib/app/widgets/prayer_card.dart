@@ -4,7 +4,6 @@ class PrayerCard extends StatelessWidget {
   final String namaSholat;
   final String waktu;
   final IconData icon;
-
   const PrayerCard(this.namaSholat, this.waktu, this.icon, {Key? key}) : super(key: key);
 
   @override

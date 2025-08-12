@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:starting_slicing/app/feature/model/donasi_model.dart';
-import 'package:starting_slicing/app/feature/pages/about_page.dart';
+import 'package:starting_slicing/app/feature/pages/profile_page.dart';
 import 'package:starting_slicing/app/feature/pages/donasi_page.dart';
 import 'package:starting_slicing/app/feature/pages/home_page.dart';
-import 'package:starting_slicing/app/feature/pages/profile_page.dart';
+import 'package:starting_slicing/app/feature/pages/profile_yayasan_page.dart';
 
 class BottomNavScreen extends StatefulWidget {
   const BottomNavScreen({super.key});
@@ -27,7 +27,9 @@ class _BottomNavScreenState extends State<BottomNavScreen> {
   @override
   Widget build(BuildContext context) {
     final List<Widget> _screens = [
-      HomePage(onAddDonasi: _handleAddDonasi), // cukup panggil tanpa onAddDonasi
+      HomePage(
+        onAddDonasi: _handleAddDonasi,
+      ), // cukup panggil tanpa onAddDonasi
       const DonasiPage(),
       const ProfilePage(),
       const AboutPage(),
@@ -45,8 +47,11 @@ class _BottomNavScreenState extends State<BottomNavScreen> {
             icon: Icon(Icons.volunteer_activism),
             label: 'Donasi',
           ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.business),
+            label: 'Profile Yayasan',
+          ),
           BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profile'),
-          BottomNavigationBarItem(icon: Icon(Icons.info), label: 'About'),
         ],
       ),
     );
